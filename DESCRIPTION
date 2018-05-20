@@ -1,0 +1,23 @@
+Package: descr2
+Title: Rearch Compendium for the "DESCREP2" Project
+Version: 0.0.0.9000
+Authors@R: person("Mikael Poul", "Johannesson", email = "mikajoh@gmail.com", role = c("aut", "cre"))
+Description: Rearch compendium for the "DESCREP2" project.
+Depends: R (>= 3.5.0)
+Imports:
+    ggplot2,
+    ggstance,
+    here,
+    rlang,
+    tidyselect,
+    sandwich,
+    broom,
+    lmtest
+Suggests:
+    testthat,
+    knitr,
+    covr
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
