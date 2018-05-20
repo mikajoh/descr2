@@ -159,8 +159,8 @@ plot_diff_by <- function(res, by) {
     geom_point(position = position_dodgev(.75)) +
     geom_vline(aes(xintercept = 0), linetype = "dotted") +
     scale_x_continuous(
-      limits = c(-.4, .4),
-      breaks = round(seq(-.4, .4, .2), 2),
+      limits = c(-.2, .2),
+      breaks = round(seq(-.2, .2, .1), 2),
       expand = c(0, 0),
       labels = function(x) x * 100) +
     scale_y_discrete(
