@@ -28,7 +28,7 @@ descr2_labels <- function() {
 #'   to \code{descr2utils::descr2_labels()}, which is included in the
 #'   compendium.
 #' @export
-add_labels <- function(amce, labels = descr2utils::descr2_labels()) {
+add_labels <- function(amce, labels = descr2::descr2_labels()) {
 
   amce <- amce[rev(order(amce$value)), ]
   amce$value <- paste0("plain('", as.character(amce$value), "')")
