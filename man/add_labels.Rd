@@ -4,7 +4,7 @@
 \alias{add_labels}
 \title{Function for adding a row with treatment labels for the figures.}
 \usage{
-add_labels(amce, labels = descr2utils::descr2_labels())
+add_labels(amce, labels = descr2::descr2_labels())
 }
 \arguments{
 \item{amce}{Estimates from \code{amce()}.}
