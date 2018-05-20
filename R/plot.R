@@ -81,7 +81,7 @@ theme_m <- function(...) {
 #' Plot AMCEs for closest and prefered candidates separately for
 #' difference subgroups.
 #' 
-#' @importFrom ggplot2 aes aes_ ggplot facet_grid geom_point geom_vline
+#' @importFrom ggplot2 aes aes_string ggplot facet_grid geom_point geom_vline
 #'   scale_x_continuous scale_y_discrete labs theme element_blank
 #'   element_line element_text margin scale_shape_manual unit
 #' @importFrom ggstance geom_errorbarh position_dodgev
@@ -93,10 +93,10 @@ theme_m <- function(...) {
 #' @export
 plot_sub_by <- function(res, by) {
   res$lwr <- res$estimate - (1.96 * res$std_error)
-  res$upr <- res$estimate + (1.96 * res$std_error)
+  res$upr <- res$estimate + (1.96 * res$std_error)  
   ggplot(
     data = res,
-    aes_(
+    aes_string(
       x = "estimate", y = "value",
       shape = "exp_treat",
       xmin = "lwr",
@@ -109,7 +109,7 @@ plot_sub_by <- function(res, by) {
       width = 0,
       position = position_dodgev(.75)) +
     geom_point(position = position_dodgev(.75)) +
-    geom_vline(aes(xintercept = 0), linetype = "dotted") +
+    geom_vline(aes(xintercept = 0), linetype = "dotted")  +
     scale_shape_manual(
       values = c(19, 1)) +
     scale_x_continuous(
@@ -124,13 +124,13 @@ plot_sub_by <- function(res, by) {
       y = "Candidate attributes",
       shape = "Decision type:"
     ) +
-    theme_m() 
+    theme_m()  
 }
 
 #' Plot difference between closest and prefered candidates for
 #' difference subgroups.
 #' 
-#' @importFrom ggplot2 aes aes_ ggplot facet_grid geom_point geom_vline
+#' @importFrom ggplot2 aes aes_string ggplot facet_grid geom_point geom_vline
 #'   scale_x_continuous scale_y_discrete labs theme element_blank
 #'   element_line element_text margin scale_shape_manual unit
 #' @importFrom ggstance geom_errorbarh position_dodgev
@@ -145,9 +145,8 @@ plot_diff_by <- function(res, by) {
   res$upr <- res$estimate + (1.96 * res$std_error)
   ggplot(
     data = res,
-    aes_(
+    aes_string(
       x = "estimate", y = "value",
-      shape = "exp_treat",
       xmin = "lwr",
       xmax = "upr")) +
     facet_grid(
@@ -168,8 +167,8 @@ plot_diff_by <- function(res, by) {
       labels = function(x) parse(text = as.character(x))) +
     labs(
       x = paste0(
-        "Substantive representation bias (%)\n",
-        "Surplus Marginal Effect, Preferer candidate"),
+        "Difference in Marginal Effect, choosing candidate (%)\n",
+        "(Closest - Prefered)"),
       y = "Candidate attributes"
     ) +
     theme_m()

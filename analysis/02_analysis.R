@@ -12,26 +12,27 @@ library(secret)
 ## Contains functions for AMCE estimation as well as various utils
 ## functions for making the figures. See for instance
 ## `?descr2utils::amce`.
-if (!require("descr2utils")) {
-  devtools::install(here("descr2utils"))
+if (!require(descr2)) {
+  devtools::install_github("mikajoh/descr2")
 }
 
 ## Get data ----------------------------------------------------------
 
-## The prepared and combined EIPS data.
-## Md5sum: 15236827da32e58632d4d530ace8679f
-## tools::md5sum(here("data", "eips.csv"))
+## ## The prepared and combined EIPS data.
+## ## Md5sum: 15236827da32e58632d4d530ace8679f
+## ## tools::md5sum(here("data", "eips.csv"))
 ## eips_raw <- read.csv(
 ##   file = here("data", "eips.csv"),
 ##   stringsAsFactors = FALSE
 ## )
 
 ## The prepared and combined EIPS data.
+## Contact Mikael (mikael.johannesson@uib.no) to enquire about a key.
 ## Md5sum: 15236827da32e58632d4d530ace8679f
 ## tools::md5sum(here("data", "eips.csv"))
 eips_raw <- get_secret(
   name = "eips_raw",
-  key = private_key,
+  key = "path/to/private/key",
   vault = here("vault")
 )
 
@@ -255,9 +256,8 @@ fig_diff_all <-
     labels = function(x) parse(text = as.character(x))) +
   labs(
     x = paste0(
-      "Substantive representation bias (%)\n",
-      "Surplus Marginal Effect, Preferer candidate\n",
-      "(eliminating AME of candidate closeness)"),
+      "Difference in Marginal Effect, choosing candidate (%)\n",
+      "(Closest - Prefered)"),
     y = "Candidate attributes"
   ) +
   theme_m()
