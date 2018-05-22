@@ -366,3 +366,75 @@ ggsave2(
   width = 7,
   height = 4.7
 )
+
+## DIFF by COUNTRY and AGE ----------------------------------------
+
+res_diff_cntry_age <-
+  eips %>%
+  amce(
+    cnd_post, cnd_age, cnd_gender, cnd_edu, cnd_religion, cnd_class,
+    subgroup = c("rsp_country", "rsp_age_cat_3"),
+    diff = "exp_treat",
+    cluster = "rsp_id"
+  ) %>%
+  add_labels()
+
+fig_diff_cntry_age <-
+  res_diff_cntry_age %>%
+  plot_diff_cntry_by("rsp_age_cat_3", "Respondents age")
+fig_diff_cntry_age
+
+ggsave2(
+  fig_diff_cntry_age,
+  "fig_diff_by_country_and_age",
+  width = 14.5,
+  height = 4.7
+)
+
+## DIFF by COUNTRY and GENDER ----------------------------------------
+
+res_diff_cntry_gnd <-
+  eips %>%
+  amce(
+    cnd_post, cnd_age, cnd_gender, cnd_edu, cnd_religion, cnd_class,
+    subgroup = c("rsp_country", "rsp_gender"),
+    diff = "exp_treat",
+    cluster = "rsp_id"
+  ) %>%
+  add_labels()
+
+fig_diff_cntry_gnd <-
+  res_diff_cntry_gnd %>%
+  plot_diff_cntry_by("rsp_gender", "Respondents gender")
+fig_diff_cntry_gnd
+
+ggsave2(
+  fig_diff_cntry_gnd,
+  "fig_diff_by_country_and_gnd",
+  width = 14.5,
+  height = 4.7
+)
+
+## DIFF by COUNTRY and EDUCATION -------------------------------------
+
+res_diff_cntry_edu <-
+  eips %>%
+  amce(
+    cnd_post, cnd_age, cnd_gender, cnd_edu, cnd_religion, cnd_class,
+    subgroup = c("rsp_country", "rsp_edu_2"),
+    diff = "exp_treat",
+    cluster = "rsp_id"
+  ) %>%
+  add_labels()
+
+fig_diff_cntry_edu <-
+  res_diff_cntry_edu %>%
+  plot_diff_cntry_by("rsp_edu_2", "Respondents education")
+fig_diff_cntry_edu
+
+ggsave2(
+  fig_diff_cntry_edu,
+  "fig_diff_by_country_and_edu",
+  width = 14.5,
+  height = 4.7
+)

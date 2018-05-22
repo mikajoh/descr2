@@ -173,3 +173,59 @@ plot_diff_by <- function(res, by) {
     ) +
     theme_m()
 }
+
+#' Plot difference between closest and prefered candidates for
+#' difference subgroups for each country.
+#' 
+#' @importFrom ggplot2 aes aes_string ggplot facet_grid geom_point geom_vline
+#'   scale_x_continuous scale_y_discrete labs theme element_blank
+#'   element_line element_text margin scale_shape_manual unit
+#' @importFrom ggstance geom_errorbarh position_dodgev
+#'
+#' @param res results from \code{amce()} passed through
+#'   \code{add_labels()}.
+#' @param by Variable to facet by.
+#' @param by_lab Label for the \code{by} in the shape legend.
+#' 
+#' @export
+plot_diff_cntry_by <- function(res, by, by_lab) {
+  res$lwr <- res$estimate - (1.96 * res$std_error)
+  res$lwr <- ifelse(res$lwr < -.4, -.4, res$lwr)
+  res$upr <- res$estimate + (1.96 * res$std_error)
+  res$upr <- ifelse(res$upr > .4, .4, res$upr)
+  shapes <- c(19, 1, 17, 2)
+  shapes <- shapes[1:length(unique(res[[by]]))]
+  ggplot(
+    data = res,
+    aes_string(
+      x = "estimate", y = "value",
+      shape = by,
+      xmin = "lwr",
+      xmax = "upr")) +
+    facet_grid(
+      treatment ~ rsp_country,
+      scales = "free_y",
+      space = "free_y") +
+    ggstance::geom_errorbarh(
+      width = 0,
+      position = position_dodgev(.75)) +
+    geom_point(position = position_dodgev(.75)) +
+    geom_vline(aes(xintercept = 0), linetype = "dotted") +
+    scale_shape_manual(
+      values = shapes) +
+    scale_x_continuous(
+      limits = c(-.4, .4),
+      breaks = round(seq(-.4, .4, .1), 2),
+      expand = c(0, 0),
+      labels = function(x) x * 100) +
+    scale_y_discrete(
+      labels = function(x) parse(text = as.character(x))) +
+    labs(
+      x = paste0(
+        "Difference in Marginal Effect, choosing candidate (%)\n",
+        "(Closest - Prefered)"),
+      y = "Candidate attributes",
+      shape = by_lab
+    ) +
+    theme_m()
+}
