@@ -19,7 +19,7 @@ if (!require(descr2)) {
 ## Get data ----------------------------------------------------------
 
 ## ## The prepared and combined EIPS data.
-## ## Md5sum: 15236827da32e58632d4d530ace8679f
+## ## Md5sum: c1e3c33270986d8b0804f7f939c6277e
 ## ## tools::md5sum(here("data", "eips.csv"))
 ## eips_raw <- read.csv(
 ##   file = here("data", "eips.csv"),
@@ -28,11 +28,10 @@ if (!require(descr2)) {
 
 ## The prepared and combined EIPS data.
 ## Contact Mikael (mikael.johannesson@uib.no) to enquire about a key.
-## Md5sum: 15236827da32e58632d4d530ace8679f
-## tools::md5sum(here("data", "eips.csv"))
+## Remeber to set the path to the private key by:
+## Sys.setenv(USER_KEY = "path/to/private/key")
 eips_raw <- get_secret(
   name = "eips_raw",
-  key = "path/to/private/key",
   vault = here("vault")
 )
 
