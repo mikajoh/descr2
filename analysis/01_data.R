@@ -119,7 +119,8 @@ nl_01 <-
       oplcat == 1     ~ "Lower",
       oplcat %in% 2:4 ~ "Intermediate",
       oplcat %in% 5:6 ~ "Higher")
-  )
+  ) %>%
+  filter(rsp_age >= 18)
 
 nl_02 <-
   nl_01 %>%
@@ -449,4 +450,13 @@ write.csv(
   x = eips_raw,
   file = here("data", "eips.csv"),
   row.names = FALSE
+)
+
+## Update the vault.
+## Remeber to set the path to the private key by:
+## Sys.setenv(USER_KEY = "path/to/private/key")
+update_secret(
+  name = "eips_raw",
+  value = eips_raw,
+  vault = here("vault")
 )
