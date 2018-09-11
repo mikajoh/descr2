@@ -105,24 +105,30 @@ fig_sub_all <-
       treatment ~ exp_treat,
       scales = "free_y",
       space = "free_y") +
-    ggstance::geom_errorbarh(
-      width = 0,
-      position = position_dodgev(.75)) +
-    geom_point(position = position_dodgev(.75)) +
+    ggstance::geom_errorbarh(width = 0) +
+    geom_point() +
     geom_vline(aes(xintercept = 0), linetype = "dotted") +
     scale_x_continuous(
-      limits = c(-.4, .4),
-      breaks = round(seq(-.4, .4, .2), 2),
+      limits = c(-.3, .3),
+      breaks = round(seq(-.3, .3, .1), 2),
       expand = c(0, 0),
       labels = function(x) x * 100) +
     scale_y_discrete(
       labels = function(x) parse(text = as.character(x))) +
     labs(
-      x = "Marginal effect, choosing candidate (%)",
+      x = "Marginal effect, selecting candidate (%)",
       y = "Candidate attributes"
     ) +
     theme_m() 
 fig_sub_all
+
+
+ggsave2(
+  fig_sub_all,
+  "fig_both_full",
+  width = 9,
+  height = 4.5
+)
 
 ggsave2(
   fig_sub_all,
@@ -247,8 +253,8 @@ fig_diff_all <-
   geom_point(position = position_dodgev(.75)) +
   geom_vline(aes(xintercept = 0), linetype = "dotted") +
   scale_x_continuous(
-    limits = c(-.4, .4),
-    breaks = round(seq(-.4, .4, .2), 2),
+    limits = c(-.2, .2),
+    breaks = round(seq(-.2, .2, .1), 2),
     expand = c(0, 0),
     labels = function(x) x * 100) +
   scale_y_discrete(
@@ -346,9 +352,11 @@ ggsave2(
 
 res_diff_edu <-
   eips %>%
+  filter(!is.na(rsp_edu_2), !is.na(rsp_age_cat_3)) %>%
+  mutate(rsp_edu_3 = paste0("Aged ", as.character(rsp_age_cat_3), ",\n", as.character(rsp_edu_2))) %>%
   amce(
     cnd_post, cnd_age, cnd_gender, cnd_edu, cnd_religion, cnd_class,
-    subgroup = "rsp_edu_2",
+    subgroup = "rsp_edu_3",
     diff = "exp_treat",
     cluster = "rsp_id"
   ) %>%
@@ -356,7 +364,7 @@ res_diff_edu <-
 
 fig_diff_edu <-
   res_diff_edu %>%
-  plot_diff_by("rsp_edu_2")
+  plot_diff_by("rsp_edu_3")
 fig_diff_edu
 
 ggsave2(
@@ -435,5 +443,71 @@ ggsave2(
   fig_diff_cntry_edu,
   "fig_diff_by_country_and_edu",
   width = 14.5,
+  height = 4.7
+)
+
+
+## DIFF by INCOME -------------------------------------------------
+
+res_diff_inc <-
+  eips %>%
+  mutate(
+    rsp_inc_cat = case_when(
+      rsp_inc %in% 0:4 ~ "Low inc",
+      rsp_inc %in% 5:12 ~ "High inc"
+    )
+  ) %>%
+  amce(
+    cnd_post, cnd_age, cnd_gender, cnd_edu, cnd_religion, cnd_class,
+    subgroup = "rsp_inc_cat",
+    diff = "exp_treat",
+    cluster = "rsp_id"
+  ) %>%
+  add_labels() %>%
+  mutate(col = p_value > .05)
+
+res <- res_diff_inc
+by <- "rsp_inc_cat"
+res$lwr <- res$estimate - (1.96 * res$std_error)
+res$upr <- res$estimate + (1.96 * res$std_error)
+
+fig_diff_inc <-
+  ggplot(
+    data = res,
+    aes_string(
+      x = "estimate", y = "value",
+      colour = "col",
+      xmin = "lwr",
+      xmax = "upr")) +
+  facet_grid(
+    paste0("treatment ~ ", by),
+    scales = "free_y",
+    space = "free_y") +
+  ggstance::geom_errorbarh(
+    width = 0,
+    position = position_dodgev(.75)) +
+  geom_point(position = position_dodgev(.75)) +
+  geom_vline(aes(xintercept = 0), linetype = "dotted") +
+  scale_x_continuous(
+    limits = c(-.2, .2),
+    breaks = round(seq(-.2, .2, .1), 2),
+    expand = c(0, 0),
+    labels = function(x) x * 100) +
+  scale_y_discrete(
+    labels = function(x) parse(text = as.character(x))) +
+  labs(
+    x = paste0(
+      "Difference in Marginal Effect, choosing candidate (%)\n",
+      "(Closest - Prefered)"),
+    y = "Candidate attributes",
+    colour = "P > .05"
+  ) +
+  theme_m()
+fig_diff_inc
+
+ggsave2(
+  fig_diff_inc,
+  "fig_diff_by_inc",
+  width = 7,
   height = 4.7
 )

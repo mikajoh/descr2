@@ -1,4 +1,4 @@
-## Mikael Poul Johannesson (mikajoh@gmail.com)
+# Mikael Poul Johannesson (mikajoh@gmail.com)
 ## 2018
 
 ## Start matter ------------------------------------------------------
@@ -29,8 +29,8 @@ if (!require(descr2)) {
 
 ## The prepared and combined EIPS data.
 ## Contact Mikael (mikael.johannesson@uib.no) to enquire about a key.
-## Md5sum: c1e3c33270986d8b0804f7f939c6277e
-## tools::md5sum(here("data", "eips.csv"))
+## Remeber to set the path to the private key by:
+## Sys.setenv(USER_KEY = "path/to/private/key")
 eips_raw <- get_secret(
   name = "eips_raw",
   vault = here("vault")
@@ -52,15 +52,102 @@ eips <-
 
 ## Treatment Assignments ---------------------------------------------
 
+var_labs_treat <- tribble(
+  ~var,            ~variable,
+  "cnd_age",      "Age",
+  "cnd_edu",      "Education",
+  "cnd_gender",   "Gender",
+  "cnd_religion", "Religion",
+  "cnd_class",    "Class"
+)
 
+descr_treat <-
+  eips %>%
+  filter(!duplicated(rsp_id)) %>%
+  gather(var, value, matches("cnd_"), -cnd_post, -cnd_n) %>%
+  left_join(var_labs_treat, by = "var") %>%
+  group_by(rsp_country, variable) %>%
+  mutate(n_tot = n()) %>%
+  group_by(rsp_country, variable, value) %>%
+  summarize(
+    n = n(),
+    prop = round(n / n_tot[1], 2) * 100
+  ) %>%
+  ungroup() %>%  
+  gather(type, res, n, prop) %>%
+  filter(!is.na(res)) %>%
+  mutate(Country = paste(rsp_country, type)) %>%
+  select(-type, -rsp_country) %>%
+  spread(Country, res) %>%
+  mutate(value = ifelse(is.na(value), "(n.a.)", value))
+
+first_row <-
+  names(descr_treat) %>%
+  str_replace(" n| prop|variable|value", "")
+first_row <- ifelse(duplicated(first_row), "", first_row)
+second_row <-
+  names(descr_treat) %>%
+  str_replace("[A-Z][a-z]+", "") %>%
+  str_trim() %>%
+  str_replace("n", "N") %>%
+  str_replace("variable", "Treatment") %>%
+  str_replace("value", "Assigned value") %>%
+  str_replace("prop", "%")
+
+tbl_treat_01 <-
+  descr_treat %>%
+  set_names(first_row) %>%  
+  as_hux() %>%
+  add_colnames() %>%
+  insert_row(second_row, after = 1) %>%
+  set_colspan(1, c(1, 3, 5, 7, 9, 11), 2)
+
+tbl_treat_02 <-
+  tbl_treat_01 %>%
+  set_top_border(1, 1:ncol(.), 1) %>%
+  set_bottom_border(2, 1:ncol(.), .75) %>%
+  set_bottom_border(nrow(.), 1:ncol(.), 1)
+
+tbl_treat_03 <-
+  tbl_treat_02 %>%
+  set_number_format(3:nrow(.), c(3:12), 0) %>%
+  ## set_number_format(3:nrow(.), c(3, 5, 7, 9, 11), 0) %>%
+  ## set_number_format(3:nrow(.), c(4, 6, 8, 10, 12), 2) %>%
+  set_align(1, 1:ncol(.), "center") %>%
+  set_align(1:nrow(.), 3:ncol(.), "right") %>%
+  set_all_padding(1:nrow(.), 1:ncol(.), -2.5) %>%
+  set_top_padding(c(2, 5, 8, 10, 12) + 1, 1:ncol(.), 12.5) %>%
+  set_font_size(1:3,1:ncol(.), 8) %>%
+  set_font_size(3:nrow(.),1:ncol(.), 8) %>%
+  set_col_width(3:ncol(.), .04)
+
+tbl_treat_04 <-
+  tbl_treat_03 %>%    
+  set_latex_float("h") %>%
+  set_width(1) %>%
+  set_position("center") %>%
+  set_caption("Treatment assignment for each country.") %>%
+  set_caption_pos("bottom") %>%
+  set_label("tbl_descr_treat") %>%
+  add_footnote(
+    paste(
+      "Note:"
+    ),
+    font_size = 7, top_padding = 0
+  )
+
+tbl_treat <- tbl_treat_04
+
+tbl_treat %>%
+  to_latex() %>%
+  write_lines(here("output", "tbls", "tbl_descr_treat.tex"))
 
 ## Descriptive Statistics --------------------------------------------
 
 
-## To see the latex pkgs needed, run
-## report_latex_dependencies()
+## To see the latex pkgs needed, run `report_latex_dependencies()`.
 
-var_labels <- tribble(
+var_labs_descr <- tribble(
   ~var,            ~variable,
   "rsp_country",   "Country",
   "rsp_gender",    "Gender",
@@ -72,13 +159,13 @@ descr_cntry <-
   eips %>%
   filter(!duplicated(rsp_id)) %>%
   gather(var, value, rsp_gender, rsp_age_cat_3, rsp_edu) %>%
-  left_join(var_labels, by = "var") %>%
+  left_join(var_labs_descr, by = "var") %>%
   group_by(rsp_country, variable) %>%
   mutate(n_tot = n()) %>%
   group_by(rsp_country, variable, value) %>%
   summarize(
     n = n(),
-    prop = round(n / n_tot[1], 2)
+    prop = round(n / n_tot[1], 2) * 100
   ) %>%
   ungroup() %>%  
   gather(type, res, n, prop) %>%
@@ -117,8 +204,9 @@ tbl_descr_02 <-
 
 tbl_descr_03 <-
   tbl_descr_02 %>%
-  set_number_format(3:nrow(.), c(3, 5, 7, 9, 11), 0) %>%
-  set_number_format(3:nrow(.), c(4, 6, 8, 10, 12), 2) %>%
+  set_number_format(3:nrow(.), c(3:12), 0) %>%
+  ## set_number_format(3:nrow(.), c(3, 5, 7, 9, 11), 0) %>%
+  ## set_number_format(3:nrow(.), c(4, 6, 8, 10, 12), 2) %>%
   set_align(1, 1:ncol(.), "center") %>%
   set_align(1:nrow(.), 3:ncol(.), "right") %>%
   set_all_padding(1:nrow(.), 1:ncol(.), -2.5) %>%

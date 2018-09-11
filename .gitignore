@@ -14,3 +14,7 @@ analysis/data*
 !.gitignore
 !.Rbuildignore
 *.#server.R
+
+*.log
+*.aux
+*.gz

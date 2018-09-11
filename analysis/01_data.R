@@ -118,7 +118,12 @@ nl_01 <-
     rsp_edu = case_when(
       oplcat == 1     ~ "Lower",
       oplcat %in% 2:4 ~ "Intermediate",
-      oplcat %in% 5:6 ~ "Higher")
+      oplcat %in% 5:6 ~ "Higher"),
+    rsp_inc = as.numeric(nettocat),
+    rsp_inc_cat = case_when(
+      rsp_inc %in% 0:3 ~ "Low inc",
+      rsp_inc %in% 4:12 ~ "High inc"
+    )
   ) %>%
   filter(rsp_age >= 18)
 
